@@ -2,6 +2,9 @@ const { useEffect, useMemo, useState } = React;
 
 const STAGES = ["lead", "showing", "offer", "closed", "lost"];
 
+const stageLabel = (stage) => stage.charAt(0).toUpperCase() + stage.slice(1);
+const formatDate = (iso) => new Date(iso).toLocaleString();
+
 function App() {
   const [tab, setTab] = useState("dashboard");
   const [dashboard, setDashboard] = useState(null);
@@ -10,26 +13,33 @@ function App() {
   const [deals, setDeals] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
   const [listingDetail, setListingDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", email: "", phone_number: "", company: "", professional_role: "buyer" });
   const [noteText, setNoteText] = useState("");
+  const [search, setSearch] = useState("");
 
   const loadAll = async () => {
+    setLoading(true);
     const [d, l, c, p] = await Promise.all([
-      fetch("/api/dashboard/").then(r => r.json()),
-      fetch("/api/listings/").then(r => r.json()),
-      fetch("/api/contacts/").then(r => r.json()),
-      fetch("/api/deals/").then(r => r.json()),
+      fetch("/api/dashboard/").then((r) => r.json()),
+      fetch("/api/listings/").then((r) => r.json()),
+      fetch("/api/contacts/").then((r) => r.json()),
+      fetch("/api/deals/").then((r) => r.json()),
     ]);
     setDashboard(d);
     setListings(l.results || []);
     setContacts(c.results || []);
     setDeals(p.results || []);
+    setLoading(false);
   };
 
-  useEffect(() => { loadAll(); }, []);
+  useEffect(() => {
+    loadAll();
+  }, []);
 
   const openListing = async (listingId) => {
-    const data = await fetch(`/api/listings/${listingId}/`).then(r => r.json());
+    if (!listingId) return;
+    const data = await fetch(`/api/listings/${listingId}/`).then((r) => r.json());
     setSelectedListing(listingId);
     setListingDetail(data);
     setTab("listing");
@@ -40,7 +50,7 @@ function App() {
     await fetch("/api/contacts/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newContact)
+      body: JSON.stringify(newContact),
     });
     setNewContact({ full_name: "", email: "", phone_number: "", company: "", professional_role: "buyer" });
     loadAll();
@@ -50,7 +60,7 @@ function App() {
     await fetch(`/api/deals/${dealId}/stage/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage })
+      body: JSON.stringify({ stage }),
     });
     loadAll();
     if (selectedListing) openListing(selectedListing);
@@ -62,132 +72,211 @@ function App() {
     await fetch(`/api/listings/${selectedListing}/notes/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: noteText })
+      body: JSON.stringify({ content: noteText }),
     });
     setNoteText("");
     openListing(selectedListing);
   };
 
+  const filteredListings = useMemo(() => {
+    const term = search.toLowerCase().trim();
+    if (!term) return listings;
+    return listings.filter((l) => `${l.address} ${l.community}`.toLowerCase().includes(term));
+  }, [listings, search]);
+
   return (
-    <div className="shell">
-      <header>
-        <h1>Mozaic Real Estate CRM</h1>
-        <p>Listing-centric workspace for agents, clients, and active deals.</p>
-      </header>
-
-      <nav>
-        {[
-          ["dashboard", "Dashboard"],
-          ["listing", "Listing Detail"],
-          ["contacts", "Contacts"],
-          ["pipeline", "Deal Pipeline"],
-        ].map(([key, label]) => (
-          <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{label}</button>
-        ))}
-      </nav>
-
-      {tab === "dashboard" && dashboard && (
-        <section className="grid stats">
-          {Object.entries(dashboard.stats).map(([label, value]) => (
-            <article key={label} className="card"><h3>{label.replaceAll("_", " ")}</h3><p>{value}</p></article>
+    <div className="layout">
+      <aside className="sidebar">
+        <div className="brand">
+          <div className="dot" />
+          <div>
+            <h1>Mozaic CRM</h1>
+            <p>Luxury Brokerage Suite</p>
+          </div>
+        </div>
+        <div className="menu">
+          {[
+            ["dashboard", "Dashboard"],
+            ["listing", "Listing Workbench"],
+            ["contacts", "Contacts"],
+            ["pipeline", "Pipeline"],
+          ].map(([key, label]) => (
+            <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>
+              {label}
+            </button>
           ))}
-          <article className="card card-wide">
-            <h3>Pipeline Overview</h3>
-            <div className="pipeline-mini">
-              {dashboard.pipeline.map(item => <div key={item.stage}><strong>{item.count}</strong><span>{item.stage}</span></div>)}
-            </div>
-          </article>
-          <article className="card card-wide">
-            <h3>Listings</h3>
-            <ul className="listing-list">
-              {listings.map(l => (
-                <li key={l.id}>
-                  <button onClick={() => openListing(l.id)}>{l.address}, {l.community}</button>
-                </li>
-              ))}
-            </ul>
-          </article>
-        </section>
-      )}
+        </div>
+      </aside>
 
-      {tab === "listing" && (
-        <section className="grid listing-grid">
-          <article className="card card-wide">
-            <h3>Select Listing</h3>
-            <select onChange={(e) => openListing(e.target.value)} value={selectedListing || ""}>
-              <option value="" disabled>Choose a listing...</option>
-              {listings.map(l => <option key={l.id} value={l.id}>{l.address} ({l.community})</option>)}
-            </select>
-          </article>
-          {listingDetail && (
-            <>
-              <article className="card">
-                <h3>Property Snapshot</h3>
-                <p>{listingDetail.listing.address}</p>
-                <p>{listingDetail.listing.beds} beds · {listingDetail.listing.baths} baths · {listingDetail.listing.size} sqft</p>
-              </article>
-              <article className="card">
-                <h3>Contacts</h3>
-                {listingDetail.contacts.map(c => <p key={c.id}>{c.full_name} — {c.professional_role}</p>)}
-              </article>
-              <article className="card card-wide">
-                <h3>Timeline</h3>
-                {listingDetail.timeline.map(item => <p key={item.id}>{item.type.toUpperCase()}: {item.description}</p>)}
-              </article>
-              <article className="card">
-                <h3>Notes</h3>
-                {listingDetail.notes.map(n => <p key={n.id}>{n.content}</p>)}
-                <form onSubmit={addNote}><textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add internal note..." /><button>Add Note</button></form>
-              </article>
-              <article className="card">
-                <h3>Chat & Email</h3>
-                {listingDetail.communications.map(m => <p key={m.id}>{m.type}: {m.message}</p>)}
-              </article>
-            </>
-          )}
-        </section>
-      )}
+      <main className="content">
+        <header className="topbar">
+          <div>
+            <h2>{tab === "listing" ? "Listing Workbench" : stageLabel(tab)}</h2>
+            <p>Listing-first command center for agents, clients, and deals.</p>
+          </div>
+          <div className="search-wrap">
+            <input placeholder="Search listing address/community..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+        </header>
 
-      {tab === "contacts" && (
-        <section className="grid contacts-grid">
-          <article className="card">
-            <h3>Add Contact</h3>
-            <form onSubmit={createContact} className="stack">
-              <input placeholder="Full name" value={newContact.full_name} onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })} required />
-              <input placeholder="Email" type="email" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} required />
-              <input placeholder="Phone" value={newContact.phone_number} onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })} />
-              <input placeholder="Company" value={newContact.company} onChange={(e) => setNewContact({ ...newContact, company: e.target.value })} />
-              <select value={newContact.professional_role} onChange={(e) => setNewContact({ ...newContact, professional_role: e.target.value })}>
-                <option value="buyer">Buyer</option><option value="seller">Seller</option><option value="investor">Investor</option>
-              </select>
-              <button>Create Contact</button>
-            </form>
-          </article>
-          <article className="card card-wide">
-            <h3>Contact Directory</h3>
-            {contacts.map(c => <p key={c.id}><strong>{c.full_name}</strong> · {c.professional_role} · {c.email}</p>)}
-          </article>
-        </section>
-      )}
+        {loading && <div className="loading">Syncing workspace...</div>}
 
-      {tab === "pipeline" && (
-        <section className="kanban-wrap">
-          {STAGES.map(stage => (
-            <div key={stage} className="kanban-col">
-              <h3>{stage.toUpperCase()}</h3>
-              {deals.filter(d => d.stage === stage).map(d => (
-                <article key={d.id} className="deal-card">
-                  <p><strong>{d.listing_address}</strong></p>
-                  <p>{d.contacts.map(c => c.full_name).join(", ") || "No contacts"}</p>
-                  <div className="deal-actions">
-                    {STAGES.filter(s => s !== stage).map(s => <button key={s} onClick={() => moveDeal(d.id, s)}>{s}</button>)}
+        {tab === "dashboard" && dashboard && (
+          <section className="panel-grid">
+            {Object.entries(dashboard.stats).map(([label, value]) => (
+              <article key={label} className="kpi">
+                <p>{label.replaceAll("_", " ")}</p>
+                <h3>{value}</h3>
+              </article>
+            ))}
+
+            <article className="card wide">
+              <div className="card-head"><h3>Pipeline Overview</h3><span>{dashboard.stats.deals} Total Deals</span></div>
+              <div className="pipeline-mini">
+                {dashboard.pipeline.map((item) => (
+                  <div key={item.stage} className="stage-chip">
+                    <strong>{item.count}</strong>
+                    <span>{stageLabel(item.stage)}</span>
                   </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="card wide">
+              <div className="card-head"><h3>Listings Portfolio</h3><span>{filteredListings.length} Records</span></div>
+              <div className="table">
+                <div className="thead"><span>Address</span><span>Community</span><span>Beds/Baths</span><span>Actions</span></div>
+                {filteredListings.map((l) => (
+                  <div key={l.id} className="trow">
+                    <span>{l.address}</span>
+                    <span>{l.community}</span>
+                    <span>{l.beds || "-"} / {l.baths || "-"}</span>
+                    <span><button onClick={() => openListing(l.id)}>Open</button></span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+        )}
+
+        {tab === "listing" && (
+          <section className="panel-grid">
+            <article className="card wide">
+              <div className="card-head"><h3>Select Active Listing</h3><span>Live context workspace</span></div>
+              <select onChange={(e) => openListing(e.target.value)} value={selectedListing || ""}>
+                <option value="" disabled>Choose listing</option>
+                {filteredListings.map((l) => <option key={l.id} value={l.id}>{l.address} ({l.community})</option>)}
+              </select>
+            </article>
+
+            {listingDetail && (
+              <>
+                <article className="card">
+                  <h3>Property Snapshot</h3>
+                  <p className="muted">{listingDetail.listing.address}</p>
+                  <h4>{listingDetail.listing.community}</h4>
+                  <p>{listingDetail.listing.beds} beds • {listingDetail.listing.baths} baths • {listingDetail.listing.size} sqft</p>
                 </article>
+
+                <article className="card">
+                  <h3>Linked Contacts</h3>
+                  {listingDetail.contacts.length === 0 && <p className="muted">No contacts linked yet.</p>}
+                  {listingDetail.contacts.map((c) => (
+                    <div key={c.id} className="list-item">
+                      <strong>{c.full_name}</strong>
+                      <small>{c.professional_role} • {c.email}</small>
+                    </div>
+                  ))}
+                </article>
+
+                <article className="card wide">
+                  <h3>Activity Timeline</h3>
+                  {listingDetail.timeline.map((item) => (
+                    <div key={item.id} className="timeline-item">
+                      <span className={`pill ${item.type}`}>{item.type}</span>
+                      <div>
+                        <p>{item.description}</p>
+                        <small>{formatDate(item.timestamp)}</small>
+                      </div>
+                    </div>
+                  ))}
+                </article>
+
+                <article className="card">
+                  <h3>Internal Notes</h3>
+                  {listingDetail.notes.map((n) => <p key={n.id} className="note">{n.content}</p>)}
+                  <form onSubmit={addNote} className="stack">
+                    <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add execution notes for your team..." />
+                    <button>Add Note</button>
+                  </form>
+                </article>
+
+                <article className="card">
+                  <h3>Comms Log</h3>
+                  {listingDetail.communications.map((m) => (
+                    <div key={m.id} className="list-item">
+                      <strong>{m.type.toUpperCase()}</strong>
+                      <small>{m.message}</small>
+                    </div>
+                  ))}
+                </article>
+              </>
+            )}
+          </section>
+        )}
+
+        {tab === "contacts" && (
+          <section className="panel-grid contacts">
+            <article className="card">
+              <h3>New Contact</h3>
+              <form onSubmit={createContact} className="stack">
+                <input placeholder="Full name" value={newContact.full_name} onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })} required />
+                <input placeholder="Email" type="email" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} required />
+                <input placeholder="Phone" value={newContact.phone_number} onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })} />
+                <input placeholder="Company" value={newContact.company} onChange={(e) => setNewContact({ ...newContact, company: e.target.value })} />
+                <select value={newContact.professional_role} onChange={(e) => setNewContact({ ...newContact, professional_role: e.target.value })}>
+                  <option value="buyer">Buyer</option>
+                  <option value="seller">Seller</option>
+                  <option value="investor">Investor</option>
+                </select>
+                <button>Create Contact</button>
+              </form>
+            </article>
+
+            <article className="card wide">
+              <div className="card-head"><h3>Relationship Directory</h3><span>{contacts.length} Contacts</span></div>
+              {contacts.map((c) => (
+                <div key={c.id} className="trow compact">
+                  <span><strong>{c.full_name}</strong></span>
+                  <span>{c.professional_role}</span>
+                  <span>{c.email}</span>
+                </div>
               ))}
-            </div>
-          ))}
-        </section>
-      )}
+            </article>
+          </section>
+        )}
+
+        {tab === "pipeline" && (
+          <section className="kanban-wrap">
+            {STAGES.map((stage) => (
+              <div key={stage} className="kanban-col">
+                <div className="card-head"><h3>{stageLabel(stage)}</h3><span>{deals.filter((d) => d.stage === stage).length}</span></div>
+                {deals.filter((d) => d.stage === stage).map((d) => (
+                  <article key={d.id} className="deal-card">
+                    <strong>{d.listing_address}</strong>
+                    <p>{d.contacts.map((c) => c.full_name).join(", ") || "No contacts"}</p>
+                    <div className="deal-actions">
+                      {STAGES.filter((s) => s !== stage).map((s) => (
+                        <button key={s} onClick={() => moveDeal(d.id, s)}>{stageLabel(s)}</button>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ))}
+          </section>
+        )}
+      </main>
     </div>
   );
 }
