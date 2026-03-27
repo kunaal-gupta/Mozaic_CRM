@@ -85,6 +85,7 @@ function App() {
   }, [listings, search]);
 
   return (
+
     <div className="layout">
       <aside className="sidebar">
         <div className="brand">
