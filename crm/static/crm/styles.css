@@ -304,18 +304,6 @@ small { color: var(--text-muted); }
   margin-bottom: 8px;
 }
 
-.workflow-step {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(159, 187, 255, 0.1);
-}
-
-.workflow-step:last-child { border-bottom: none; }
-.workflow-step strong { color: var(--accent-2); }
-.workflow-step span { color: var(--text-muted); }
-
 .timeline-item {
   display: grid;
   grid-template-columns: auto 1fr;

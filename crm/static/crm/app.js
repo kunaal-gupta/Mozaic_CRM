@@ -9,14 +9,12 @@ const tabTitle = {
   listing: "Listing Workbench",
   contacts: "Contacts",
   pipeline: "Deal Pipeline",
-  workflow: "Operating Workflow",
 };
 const tabSubtitle = {
   dashboard: "Track portfolio velocity, pipeline health, and team execution in one place.",
   listing: "Collaborate across notes, communications, and activity with listing-level context.",
   contacts: "Grow and manage high-value relationships with a clean, searchable directory.",
   pipeline: "Move opportunities forward with clear stage ownership and fast updates.",
-  workflow: "Standardize SuperAdmin and Agent execution from onboarding through close.",
 };
 
 function App() {
