@@ -9,12 +9,14 @@ const tabTitle = {
   listing: "Listing Workbench",
   contacts: "Contacts",
   pipeline: "Deal Pipeline",
+  workflow: "Operating Workflow",
 };
 const tabSubtitle = {
   dashboard: "Track portfolio velocity, pipeline health, and team execution in one place.",
   listing: "Collaborate across notes, communications, and activity with listing-level context.",
   contacts: "Grow and manage high-value relationships with a clean, searchable directory.",
   pipeline: "Move opportunities forward with clear stage ownership and fast updates.",
+  workflow: "Standardize SuperAdmin and Agent execution from onboarding through close.",
 };
 
 function App() {
@@ -25,6 +27,7 @@ function App() {
   const [deals, setDeals] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
   const [listingDetail, setListingDetail] = useState(null);
+  const [workflow, setWorkflow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", email: "", phone_number: "", company: "", professional_role: "buyer" });
   const [noteText, setNoteText] = useState("");
@@ -38,10 +41,12 @@ function App() {
       fetch("/api/contacts/").then((r) => r.json()),
       fetch("/api/deals/").then((r) => r.json()),
     ]);
+    const w = await fetch("/api/workflow/").then((r) => r.json());
     setDashboard(d);
     setListings(l.results || []);
     setContacts(c.results || []);
     setDeals(p.results || []);
+    setWorkflow(w);
     setLoading(false);
   };
 
@@ -113,6 +118,7 @@ function App() {
             ["listing", "Listing Workbench"],
             ["contacts", "Contacts"],
             ["pipeline", "Pipeline"],
+            ["workflow", "Workflow"],
           ].map(([key, label]) => (
             <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>
               {label}
@@ -153,7 +159,7 @@ function App() {
                 {dashboard.pipeline.map((item) => (
                   <div key={item.stage} className="stage-chip">
                     <strong>{item.count}</strong>
-                    <span>{stageLabel(item.stage)}</span>
+                    <span>{item.label || stageLabel(item.stage)}</span>
                   </div>
                 ))}
               </div>
@@ -238,6 +244,28 @@ function App() {
                     </div>
                   ))}
                 </article>
+
+                <article className="card">
+                  <h3>Open Tasks</h3>
+                  {(listingDetail.tasks || []).length === 0 && <p className="muted">No tasks assigned to this listing yet.</p>}
+                  {(listingDetail.tasks || []).map((task) => (
+                    <div key={task.id} className="list-item">
+                      <strong>{task.title}</strong>
+                      <small>{task.status} {task.due_date ? `• due ${formatDate(task.due_date)}` : ""}</small>
+                    </div>
+                  ))}
+                </article>
+
+                <article className="card">
+                  <h3>Showings</h3>
+                  {(listingDetail.showings || []).length === 0 && <p className="muted">No showing schedule found.</p>}
+                  {(listingDetail.showings || []).map((showing) => (
+                    <div key={showing.id} className="list-item">
+                      <strong>{showing.status.toUpperCase()}</strong>
+                      <small>{formatDate(showing.scheduled_at)}</small>
+                    </div>
+                  ))}
+                </article>
               </>
             )}
           </section>
@@ -294,6 +322,38 @@ function App() {
                 ))}
               </div>
             ))}
+          </section>
+        )}
+
+        {tab === "workflow" && workflow && (
+          <section className="panel-grid">
+            <article className="card">
+              <div className="card-head"><h3>SuperAdmin Flow</h3><span>Governance</span></div>
+              {workflow.superadmin_flow.map((step, idx) => (
+                <div key={step} className="workflow-step">
+                  <strong>{idx + 1}.</strong> <span>{step}</span>
+                </div>
+              ))}
+            </article>
+            <article className="card wide">
+              <div className="card-head"><h3>Agent Execution Workflow</h3><span>Deal Lifecycle</span></div>
+              {workflow.agent_flow.map((step, idx) => (
+                <div key={step} className="workflow-step">
+                  <strong>{idx + 1}.</strong> <span>{step}</span>
+                </div>
+              ))}
+            </article>
+            <article className="card wide">
+              <div className="card-head"><h3>Stage Policy</h3><span>Controlled progression</span></div>
+              <div className="pipeline-mini">
+                {workflow.stage_policy.map((stage, idx) => (
+                  <div key={stage} className="stage-chip">
+                    <strong>{idx + 1}</strong>
+                    <span>{stage}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
           </section>
         )}
       </main>
