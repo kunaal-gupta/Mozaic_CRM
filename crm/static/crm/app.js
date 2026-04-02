@@ -30,6 +30,7 @@ function App() {
   const [deals, setDeals] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
   const [listingDetail, setListingDetail] = useState(null);
+  const [workflow, setWorkflow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", email: "", phone_number: "", company: "", professional_role: "buyer" });
   const [noteText, setNoteText] = useState("");
@@ -43,10 +44,12 @@ function App() {
       fetch("/api/contacts/").then((r) => r.json()),
       fetch("/api/deals/").then((r) => r.json()),
     ]);
+    const w = await fetch("/api/workflow/").then((r) => r.json());
     setDashboard(d);
     setListings(l.results || []);
     setContacts(c.results || []);
     setDeals(p.results || []);
+    setWorkflow(w);
     setLoading(false);
   };
 
@@ -128,6 +131,10 @@ function App() {
           {(secondaryMenus[tab] || []).map((label, idx) => (
             <button key={label} className={`sub-item ${idx === 0 ? "active" : ""}`}>{label}</button>
           ))}
+        </div>
+        <div className="sidebar-foot">
+          <p>Workspace status</p>
+          <strong>{loading ? "Syncing live data..." : "All systems operational"}</strong>
         </div>
       </aside>
 
