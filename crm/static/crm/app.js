@@ -3,6 +3,32 @@ const { useEffect, useMemo, useState } = React;
 const STAGES = ["lead", "showing", "offer", "closed", "lost"];
 const stageLabel = (stage) => stage.charAt(0).toUpperCase() + stage.slice(1);
 const formatDate = (iso) => new Date(iso).toLocaleString();
+const tabTitle = {
+  dashboard: "Executive Dashboard",
+  listing: "Listing Workbench",
+  contacts: "Contacts",
+  pipeline: "Deal Pipeline",
+};
+const tabSubtitle = {
+  dashboard: "Track portfolio velocity, pipeline health, and team execution in one place.",
+  listing: "Collaborate across notes, communications, and activity with listing-level context.",
+  contacts: "Grow and manage high-value relationships with a clean, searchable directory.",
+  pipeline: "Move opportunities forward with clear stage ownership and fast updates.",
+};
+
+const primaryRailItems = [
+  { key: "dashboard", icon: "⌂", label: "Home" },
+  { key: "contacts", icon: "👥", label: "Contacts" },
+  { key: "listing", icon: "🏠", label: "Properties" },
+  { key: "pipeline", icon: "💼", label: "Deals" },
+];
+
+const secondaryMenus = {
+  dashboard: ["Overview", "Team feed", "Forecast"],
+  contacts: ["People", "Organizations", "Timeline", "Merge duplicates"],
+  listing: ["Listing workbench", "Inventory", "Showing notes"],
+  pipeline: ["Kanban", "Deal history", "Stage rules"],
+};
 
 const primaryRailItems = [
   { key: "dashboard", icon: "⌂", label: "Home" },
@@ -26,6 +52,7 @@ function App() {
   const [deals, setDeals] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
   const [listingDetail, setListingDetail] = useState(null);
+  const [workflow, setWorkflow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", email: "", phone_number: "", company: "", professional_role: "buyer" });
   const [noteText, setNoteText] = useState("");
@@ -39,10 +66,12 @@ function App() {
       fetch("/api/contacts/").then((r) => r.json()),
       fetch("/api/deals/").then((r) => r.json()),
     ]);
+    const w = await fetch("/api/workflow/").then((r) => r.json());
     setDashboard(d);
     setListings(l.results || []);
     setContacts(c.results || []);
     setDeals(p.results || []);
+    setWorkflow(w);
     setLoading(false);
   };
 
@@ -120,6 +149,10 @@ function App() {
           {(secondaryMenus[tab] || []).map((label, idx) => (
             <button key={label} className={`sub-item ${idx === 0 ? "active" : ""}`}>{label}</button>
           ))}
+        </div>
+        <div className="sidebar-foot">
+          <p>Workspace status</p>
+          <strong>{loading ? "Syncing live data..." : "All systems operational"}</strong>
         </div>
       </aside>
 
