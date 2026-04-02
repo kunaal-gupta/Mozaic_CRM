@@ -132,10 +132,6 @@ function App() {
             <button key={label} className={`sub-item ${idx === 0 ? "active" : ""}`}>{label}</button>
           ))}
         </div>
-        <div className="sidebar-foot">
-          <p>Workspace status</p>
-          <strong>{loading ? "Syncing live data..." : "All systems operational"}</strong>
-        </div>
       </aside>
 
       <main className="workspace">
