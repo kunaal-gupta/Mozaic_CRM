@@ -1,0 +1,25 @@
+.listing-row { grid-template-columns: 1.5fr 1fr 0.7fr 0.5fr; }
+
+.detail-grid {
+  margin: 0 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.panel h4 { margin: 0 0 8px; }
+.tiny-item { border-bottom: 1px solid #eceff5; padding: 7px 0; }
+.tiny-item p { margin: 4px 0; }
+.tiny-item small { color: var(--muted); }
+.note { background: #f3f6fb; border: 1px solid #d8deea; border-radius: 8px; padding: 8px; }
+
+@media (max-width: 900px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}

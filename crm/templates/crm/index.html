@@ -5,7 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mozaic Real Estate CRM</title>
-  <link rel="stylesheet" href="{% static 'crm/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/base.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/components.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/contacts.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/listings.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/styles/pipeline.css' %}">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,6 +19,10 @@
 </head>
 <body>
   <div id="root"></div>
+  <script type="text/babel" src="{% static 'crm/components/dashboard-tab.js' %}"></script>
+  <script type="text/babel" src="{% static 'crm/components/contacts-tab.js' %}"></script>
+  <script type="text/babel" src="{% static 'crm/components/listings-tab.js' %}"></script>
+  <script type="text/babel" src="{% static 'crm/components/pipeline-tab.js' %}"></script>
   <script type="text/babel" src="{% static 'crm/app.js' %}"></script>
 </body>
 </html>
