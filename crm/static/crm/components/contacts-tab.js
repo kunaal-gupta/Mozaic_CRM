@@ -1,4 +1,4 @@
-function ContactsTab({ contacts, newContact, setNewContact, createContact }) {
+window.ContactsTab = function ContactsTab({ contacts, newContact, setNewContact, createContact }) {
   return (
     <>
       <div className="data-toolbar">
@@ -29,4 +29,4 @@ function ContactsTab({ contacts, newContact, setNewContact, createContact }) {
       </form>
     </>
   );
-}
+};

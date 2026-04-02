@@ -1,4 +1,4 @@
-function DashboardTab({ dashboard }) {
+window.DashboardTab = function DashboardTab({ dashboard }) {
   if (!dashboard) return null;
 
   return (
@@ -17,4 +17,4 @@ function DashboardTab({ dashboard }) {
       </div>
     </>
   );
-}
+};

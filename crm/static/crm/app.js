@@ -3,32 +3,10 @@ const { useEffect, useMemo, useState } = React;
 const STAGES = ["lead", "showing", "offer", "closed", "lost"];
 const stageLabel = (stage) => stage.charAt(0).toUpperCase() + stage.slice(1);
 const formatDate = (iso) => new Date(iso).toLocaleString();
-const tabTitle = {
-  dashboard: "Executive Dashboard",
-  listing: "Listing Workbench",
-  contacts: "Contacts",
-  pipeline: "Deal Pipeline",
-};
-const tabSubtitle = {
-  dashboard: "Track portfolio velocity, pipeline health, and team execution in one place.",
-  listing: "Collaborate across notes, communications, and activity with listing-level context.",
-  contacts: "Grow and manage high-value relationships with a clean, searchable directory.",
-  pipeline: "Move opportunities forward with clear stage ownership and fast updates.",
-};
-
-const primaryRailItems = [
-  { key: "dashboard", icon: "⌂", label: "Home" },
-  { key: "contacts", icon: "👥", label: "Contacts" },
-  { key: "listing", icon: "🏠", label: "Properties" },
-  { key: "pipeline", icon: "💼", label: "Deals" },
-];
-
-const secondaryMenus = {
-  dashboard: ["Overview", "Team feed", "Forecast"],
-  contacts: ["People", "Organizations", "Timeline", "Merge duplicates"],
-  listing: ["Listing workbench", "Inventory", "Showing notes"],
-  pipeline: ["Kanban", "Deal history", "Stage rules"],
-};
+const DashboardTab = window.DashboardTab;
+const ContactsTab = window.ContactsTab;
+const ListingsTab = window.ListingsTab;
+const PipelineTab = window.PipelineTab;
 
 const primaryRailItems = [
   { key: "dashboard", icon: "⌂", label: "Home" },
@@ -125,6 +103,10 @@ function App() {
     if (!term) return listings;
     return listings.filter((l) => `${l.address} ${l.community}`.toLowerCase().includes(term));
   }, [listings, search]);
+
+  if (!DashboardTab || !ContactsTab || !ListingsTab || !PipelineTab) {
+    return <div className="empty">UI modules failed to load. Please refresh the page.</div>;
+  }
 
   return (
     <div className="app-shell">

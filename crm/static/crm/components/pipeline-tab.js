@@ -1,4 +1,4 @@
-function PipelineTab({ deals, STAGES, stageLabel, moveDeal }) {
+window.PipelineTab = function PipelineTab({ deals, STAGES, stageLabel, moveDeal }) {
   return (
     <div className="kanban-wrap">
       {STAGES.map((stage) => (
@@ -19,4 +19,4 @@ function PipelineTab({ deals, STAGES, stageLabel, moveDeal }) {
       ))}
     </div>
   );
-}
+};

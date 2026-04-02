@@ -1,4 +1,4 @@
-function ListingsTab({
+window.ListingsTab = function ListingsTab({
   filteredListings,
   selectedListing,
   openListing,
@@ -56,4 +56,4 @@ function ListingsTab({
       )}
     </>
   );
-}
+};
