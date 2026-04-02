@@ -1,0 +1,15 @@
+.kanban-wrap {
+  margin: 0 16px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(220px, 1fr));
+  gap: 10px;
+  overflow: auto;
+}
+
+.kanban-col { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+.col-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.col-head h4 { margin: 0; }
+.deal-card { border: 1px solid #dde2ef; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+.deal-card p { margin: 6px 0; color: var(--muted); font-size: 13px; }
+.deal-actions { display: flex; flex-wrap: wrap; gap: 5px; }
+.deal-actions button { padding: 5px 8px; font-size: 12px; }

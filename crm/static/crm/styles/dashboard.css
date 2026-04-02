@@ -1,0 +1,10 @@
+.kpi-row {
+  margin: 0 16px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.kpi-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.kpi-card p { margin: 0; color: var(--muted); text-transform: uppercase; font-size: 11px; }
+.kpi-card h3 { margin: 8px 0 0; font-size: 27px; }

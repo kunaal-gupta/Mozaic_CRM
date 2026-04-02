@@ -1,0 +1,35 @@
+:root {
+  --rail: #221d62;
+  --rail-active: #5a4bdf;
+  --border: #d9dbe3;
+  --surface: #ffffff;
+  --canvas: #f4f5f8;
+  --text: #272b37;
+  --muted: #677085;
+  --green: #23874f;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, sans-serif; background: var(--canvas); color: var(--text); }
+
+button {
+  border: 1px solid #ced3e1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-weight: 600;
+  color: #2d3343;
+  cursor: pointer;
+}
+
+button.primary { background: var(--green); color: #fff; border-color: #1e7844; }
+button.ghost { border-radius: 999px; width: 36px; height: 36px; padding: 0; }
+
+input, select, textarea {
+  border: 1px solid #cfd5e3;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 14px;
+}
+
+a { color: #1f66cf; text-decoration: none; }
