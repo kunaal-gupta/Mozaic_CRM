@@ -30,6 +30,20 @@ const secondaryMenus = {
   pipeline: ["Kanban", "Deal history", "Stage rules"],
 };
 
+const primaryRailItems = [
+  { key: "dashboard", icon: "⌂", label: "Home" },
+  { key: "contacts", icon: "👥", label: "Contacts" },
+  { key: "listing", icon: "🏠", label: "Properties" },
+  { key: "pipeline", icon: "💼", label: "Deals" },
+];
+
+const secondaryMenus = {
+  dashboard: ["Overview", "Team feed", "Forecast"],
+  contacts: ["People", "Organizations", "Timeline", "Merge duplicates"],
+  listing: ["Listing workbench", "Inventory", "Showing notes"],
+  pipeline: ["Kanban", "Deal history", "Stage rules"],
+};
+
 function App() {
   const [tab, setTab] = useState("contacts");
   const [dashboard, setDashboard] = useState(null);
@@ -159,122 +173,29 @@ function App() {
         <section className="content-wrap">
           {loading && <div className="loading">Syncing workspace...</div>}
 
-          {tab === "dashboard" && dashboard && (
-            <>
-              <div className="data-toolbar">
-                <strong>Portfolio Snapshot</strong>
-                <span>{dashboard.stats.deals} deals in motion</span>
-              </div>
-              <div className="kpi-row">
-                {Object.entries(dashboard.stats).map(([label, value]) => (
-                  <article key={label} className="kpi-card">
-                    <p>{label.replaceAll("_", " ")}</p>
-                    <h3>{value}</h3>
-                  </article>
-                ))}
-              </div>
-            </>
-          )}
-
+          {tab === "dashboard" && <DashboardTab dashboard={dashboard} />}
           {tab === "contacts" && (
-            <>
-              <div className="data-toolbar">
-                <button className="primary">+ Person</button>
-                <span>{contacts.length} people</span>
-              </div>
-              <div className="table-shell">
-                <div className="thead row contacts-row">
-                  <span>Name</span><span>Organization</span><span>Email</span><span>Phone</span><span>Role</span>
-                </div>
-                {contacts.length === 0 && <div className="empty">No contacts yet</div>}
-                {contacts.map((c) => (
-                  <div key={c.id} className="row contacts-row">
-                    <span>{c.full_name}</span>
-                    <span>{c.company || "-"}</span>
-                    <span><a href={`mailto:${c.email}`}>{c.email}</a></span>
-                    <span>{c.phone_number || "-"}</span>
-                    <span>{c.professional_role}</span>
-                  </div>
-                ))}
-              </div>
-
-              <form onSubmit={createContact} className="quick-form">
-                <input placeholder="Full name" value={newContact.full_name} onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })} required />
-                <input placeholder="Email" type="email" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} required />
-                <input placeholder="Phone" value={newContact.phone_number} onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })} />
-                <button className="primary">Create</button>
-              </form>
-            </>
+            <ContactsTab
+              contacts={contacts}
+              newContact={newContact}
+              setNewContact={setNewContact}
+              createContact={createContact}
+            />
           )}
-
           {tab === "listing" && (
-            <>
-              <div className="data-toolbar">
-                <select onChange={(e) => openListing(e.target.value)} value={selectedListing || ""}>
-                  <option value="" disabled>Select listing</option>
-                  {filteredListings.map((l) => <option key={l.id} value={l.id}>{l.address} ({l.community})</option>)}
-                </select>
-                <span>{filteredListings.length} listings</span>
-              </div>
-
-              <div className="table-shell">
-                <div className="thead row listing-row">
-                  <span>Address</span><span>Community</span><span>Beds/Baths</span><span>Action</span>
-                </div>
-                {filteredListings.map((l) => (
-                  <div key={l.id} className="row listing-row">
-                    <span>{l.address}</span>
-                    <span>{l.community}</span>
-                    <span>{l.beds || "-"} / {l.baths || "-"}</span>
-                    <span><button onClick={() => openListing(l.id)}>Open</button></span>
-                  </div>
-                ))}
-              </div>
-
-              {listingDetail && (
-                <div className="detail-grid">
-                  <article className="panel">
-                    <h4>Timeline</h4>
-                    {listingDetail.timeline.map((item) => (
-                      <div key={item.id} className="tiny-item">
-                        <strong>{item.type}</strong>
-                        <p>{item.description}</p>
-                        <small>{formatDate(item.timestamp)}</small>
-                      </div>
-                    ))}
-                  </article>
-                  <article className="panel">
-                    <h4>Notes</h4>
-                    {listingDetail.notes.map((n) => <p key={n.id} className="note">{n.content}</p>)}
-                    <form onSubmit={addNote} className="stack">
-                      <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note" />
-                      <button>Add</button>
-                    </form>
-                  </article>
-                </div>
-              )}
-            </>
+            <ListingsTab
+              filteredListings={filteredListings}
+              selectedListing={selectedListing}
+              openListing={openListing}
+              listingDetail={listingDetail}
+              noteText={noteText}
+              setNoteText={setNoteText}
+              addNote={addNote}
+              formatDate={formatDate}
+            />
           )}
-
           {tab === "pipeline" && (
-            <div className="kanban-wrap">
-              {STAGES.map((stage) => (
-                <div key={stage} className="kanban-col">
-                  <div className="col-head"><h4>{stageLabel(stage)}</h4><span>{deals.filter((d) => d.stage === stage).length}</span></div>
-                  {deals.filter((d) => d.stage === stage).map((d) => (
-                    <article key={d.id} className="deal-card">
-                      <strong>{d.listing_address}</strong>
-                      <p>{d.contacts.map((c) => c.full_name).join(", ") || "No contacts"}</p>
-                      <div className="deal-actions">
-                        {STAGES.filter((s) => s !== stage).map((s) => (
-                          <button key={s} onClick={() => moveDeal(d.id, s)}>{stageLabel(s)}</button>
-                        ))}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <PipelineTab deals={deals} STAGES={STAGES} stageLabel={stageLabel} moveDeal={moveDeal} />
           )}
         </section>
       </main>
