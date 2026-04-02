@@ -17,7 +17,7 @@ const primaryRailItems = [
 
 const secondaryMenus = {
   dashboard: ["Overview", "Team feed", "Forecast"],
-  contacts: ["People", "Organizations", "Timeline", "Merge duplicates"],
+  contacts: ["People", "Organizations"],
   listing: ["Listing workbench", "Inventory", "Showing notes"],
   pipeline: ["Kanban", "Deal history", "Stage rules"],
 };

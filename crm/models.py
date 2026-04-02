@@ -150,7 +150,7 @@ class Deal(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "deals"
+        db_table = "deal"
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["assigned_agent", "stage"], name="idx_deals_agent_stage")]
 
