@@ -9,17 +9,27 @@ const ListingsTab = window.ListingsTab;
 const PipelineTab = window.PipelineTab;
 
 const primaryRailItems = [
-  { key: "dashboard", icon: "⌂", label: "Home" },
+  { key: "dashboard", icon: "🏠", label: "Dashboard" },
   { key: "contacts", icon: "👥", label: "Contacts" },
-  { key: "listing", icon: "🏠", label: "Properties" },
-  { key: "pipeline", icon: "💼", label: "Deals" },
+  { key: "properties", icon: "🏡", label: "Properties" },
+  { key: "deals", icon: "💰", label: "Deals" },
+  { key: "activities", icon: "📅", label: "Activities" },
+  { key: "tasks", icon: "✅", label: "Tasks" },
+  { key: "showings", icon: "🏘️", label: "Showings" },
+  { key: "email", icon: "📧", label: "Email" },
+  { key: "settings", icon: "⚙️", label: "Settings" },
 ];
 
 const secondaryMenus = {
-  dashboard: ["Overview", "Team feed", "Forecast"],
-  contacts: ["People", "Organizations"],
-  listing: ["Listing workbench", "Inventory", "Showing notes"],
-  pipeline: ["Kanban", "Deal history", "Stage rules"],
+  dashboard: ["Overview"],
+  contacts: ["People", "Users", "Organizations"],
+  properties: ["All Listings"],
+  deals: ["All Deals", "Pipeline View"],
+  activities: ["All Activities", "Timeline"],
+  tasks: ["My Tasks", "All Tasks"],
+  showings: ["All Showings", "Calendar View"],
+  email: ["Templates", "Campaigns / Drips"],
+  settings: ["Users", "Deal Stages", "System Config"],
 };
 
 function App() {
@@ -108,6 +118,8 @@ function App() {
     return <div className="empty">UI modules failed to load. Please refresh the page.</div>;
   }
 
+  const activeView = tab === "properties" ? "listing" : tab === "deals" ? "pipeline" : tab;
+
   return (
     <div className="app-shell">
       <aside className="primary-rail">
@@ -126,7 +138,7 @@ function App() {
       </aside>
 
       <aside className="secondary-rail">
-        <div className="crumb">Contacts / <strong>{stageLabel(tab)}</strong></div>
+        <div className="crumb">CRM / <strong>{stageLabel(tab)}</strong></div>
         <div className="menu-block">
           {(secondaryMenus[tab] || []).map((label, idx) => (
             <button key={label} className={`sub-item ${idx === 0 ? "active" : ""}`}>{label}</button>
@@ -151,8 +163,8 @@ function App() {
         <section className="content-wrap">
           {loading && <div className="loading">Syncing workspace...</div>}
 
-          {tab === "dashboard" && <DashboardTab dashboard={dashboard} />}
-          {tab === "contacts" && (
+          {activeView === "dashboard" && <DashboardTab dashboard={dashboard} />}
+          {activeView === "contacts" && (
             <ContactsTab
               contacts={contacts}
               newContact={newContact}
@@ -160,7 +172,7 @@ function App() {
               createContact={createContact}
             />
           )}
-          {tab === "listing" && (
+          {activeView === "listing" && (
             <ListingsTab
               filteredListings={filteredListings}
               selectedListing={selectedListing}
@@ -172,8 +184,23 @@ function App() {
               formatDate={formatDate}
             />
           )}
-          {tab === "pipeline" && (
+          {activeView === "pipeline" && (
             <PipelineTab deals={deals} STAGES={STAGES} stageLabel={stageLabel} moveDeal={moveDeal} />
+          )}
+          {activeView === "activities" && (
+            <div className="data-toolbar"><strong>All Activities</strong><span>Timeline per contact/deal</span></div>
+          )}
+          {activeView === "tasks" && (
+            <div className="data-toolbar"><strong>Tasks</strong><span>My Tasks and All Tasks (Tasks model)</span></div>
+          )}
+          {activeView === "showings" && (
+            <div className="data-toolbar"><strong>Showings</strong><span>All Showings and Calendar View</span></div>
+          )}
+          {activeView === "email" && (
+            <div className="data-toolbar"><strong>Email</strong><span>Templates and Campaigns / Drips</span></div>
+          )}
+          {activeView === "settings" && (
+            <div className="data-toolbar"><strong>Settings</strong><span>Admin only: Users, Deal Stages, System Config</span></div>
           )}
         </section>
       </main>

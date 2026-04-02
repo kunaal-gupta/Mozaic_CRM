@@ -12,6 +12,7 @@
   align-items: center;
   padding: 12px 8px;
   gap: 8px;
+  overflow-y: auto;
 }
 
 .logo {
@@ -40,7 +41,7 @@
 }
 
 .rail-btn.active { background: var(--rail-active); color: #fff; }
-.rail-btn small { font-size: 11px; }
+.rail-btn small { font-size: 10px; }
 
 .secondary-rail {
   background: #f0f1f5;

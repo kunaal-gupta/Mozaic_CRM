@@ -1,52 +1,12 @@
-/* Expanded Grid for all fields */
-.contacts-row {
+.contacts-row { grid-template-columns: 1.2fr 1.2fr 1.2fr 1fr 0.7fr; }
+
+.quick-form {
+  margin: 0 16px;
   display: grid;
-  /* Columns: Name, Company, Email, Phone, Type, Assigned, Linked, Metadata, Dates */
-  grid-template-columns: 1.5fr 1.2fr 1.5fr 1.2fr 1fr 1.2fr 1.2fr 1fr 1.5fr;
+  grid-template-columns: 1fr 1fr 1fr auto;
   gap: 8px;
-  align-items: center;
-  padding: 10px 16px;
-  min-width: 1400px; /* Ensures it doesn't squash on smaller screens */
 }
 
-.table-shell {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  overflow-x: auto; /* Horizontal scroll for the wide table */
-}
-
-/* Field Interaction */
-.editable-field {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  font-size: 13px;
-  transition: all 0.15s ease-in-out;
-}
-
-.editable-field:hover {
-  background: rgba(0, 123, 255, 0.03);
-  border-color: #cbd5e0;
-}
-
-.editable-field:focus {
-  background: white;
-  border-color: #3182ce;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
-}
-
-/* Style for non-editable metadata (Created By, Dates) */
-.metadata-cell {
-  font-size: 12px;
-  color: #718096;
-  padding: 6px;
-}
-
-.timestamp {
-  font-family: monospace;
-  font-size: 11px;
+@media (max-width: 1100px) {
+  .quick-form { grid-template-columns: 1fr; }
 }
